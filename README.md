@@ -6,7 +6,7 @@ The source code is here just to show my progress on my bot.
 
 ## Requirements
 
-- Python 3.5+
+- Python 3.6+
 - discord.py rewrite
 - pyChallonge
 - cairosvg
