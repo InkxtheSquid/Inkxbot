@@ -4,7 +4,7 @@ from discord.ext import commands
 import discord
 
 
-class Misc:
+class Misc(commands.Cog):
     """ Miscellaneous commands. """
 
     def __init__(self, bot):
@@ -86,37 +86,69 @@ class Misc:
             await ctx.trigger_typing()
             await asyncio.sleep(1)
             await ctx.send("That is totaly breaking the rules...")
-        elif args == "/@everyone":
-            await ctx.trigger_typing()
-            await asyncio.sleep(1)
-            await ctx.send("That is totaly breaking the rules...")
-        elif args == "/@here":
-            await ctx.trigger_typing()
-            await asyncio.sleep(1)
-            await ctx.send("That is totaly breaking the rules...")
-        elif args == "\@everyone":
-            await ctx.trigger_typing()
-            await asyncio.sleep(1)
-            await ctx.send("That is totaly breaking the rules...")
-        elif args == "\@here":
-            await ctx.trigger_typing()
-            await asyncio.sleep(1)
-            await ctx.send("That is totaly breaking the rules...")
         else:
             await ctx.trigger_typing()
             await asyncio.sleep(1)
             await ctx.send('**SMACK!** *{0} slaps {1}*'.format(user, args))
+
+    @commands.command(hidden=True)
+    async def stab(self, ctx, args):
+        """Slap someone!"""
+        user = ctx.message.author.mention
+        if args == ctx.message.author.mention:
+            await ctx.trigger_typing()
+            await asyncio.sleep(1)
+            await ctx.send("Stabing yourself ain't gonna work. \U0001f611")
+        elif args == ctx.message.author.name:
+            await ctx.trigger_typing()
+            await asyncio.sleep(1)
+            await ctx.send("Stabing yourself ain't gonna work. \U0001f611")
+        elif args == "myself":
+            await ctx.trigger_typing()
+            await asyncio.sleep(1)
+            await ctx.send("Stabing yourself ain't gonna work. \U0001f611")
+        elif args == "himself":
+            await ctx.trigger_typing()
+            await asyncio.sleep(1)
+            await ctx.send("Stabing yourself ain't gonna work. \U0001f611")
+        elif args == "herself":
+            await ctx.trigger_typing()
+            await asyncio.sleep(1)
+            await ctx.send("Stabing yourself ain't gonna work. \U0001f611")
+        elif args == "themself":
+            await ctx.trigger_typing()
+            await asyncio.sleep(1)
+            await ctx.send("Stabing yourself ain't gonna work. \U0001f611")
+        elif args == "themselfs":
+            await ctx.trigger_typing()
+            await asyncio.sleep(1)
+            await ctx.send("Stabing yourself ain't gonna work. \U0001f611")
+        elif args == "@everyone":
+            await ctx.trigger_typing()
+            await asyncio.sleep(1)
+            await ctx.send("Are you a serial killer? Would I ping everyone for you? ABSOLUTELY NOT!")
+        elif args == "@here":
+            await ctx.trigger_typing()
+            await asyncio.sleep(1)
+            await ctx.send("Are you a serial killer? Would I ping everyone for you? ABSOLUTELY NOT!")
+        else:
+            await ctx.trigger_typing()
+            await asyncio.sleep(1)
+            await ctx.send('**SHINK!** *{0} stabs {1}*'.format(user, args))
 
     @commands.command()
     async def add(self, ctx):
         """I will give you a link so I can be added to a server"""
         await ctx.trigger_typing()
         await asyncio.sleep(1)
-        await ctx.author.send('You want to add me to a server? Ok! Add me to a server with this link: <https://inkxbot.github.io/invite>')
-        if isinstance(ctx.message.channel, discord.TextChannel):
-            await ctx.send("{} check your dms".format(ctx.message.author.mention))
-        else:
-            None
+        try:
+            await ctx.author.send('You want to add me to a server? Ok! Add me to a server with this link: <https://inkxbot.github.io/invite>')
+            if isinstance(ctx.message.channel, discord.TextChannel):
+                await ctx.send(f"{ctx.message.author.mention} check your dms")
+            else:
+                None
+        except discord.Forbidden:
+            await ctx.send(f"{ctx.message.author.mention} seems like I can't send you dms, you must have me unblocked or have `Allow direct messages from server members` on from here.")
 
     @commands.command(hidden=True)
     async def typing(self, ctx):
@@ -127,22 +159,10 @@ class Misc:
 
     @commands.command(hidden=True, pass_context=True)
     @commands.is_owner()
-    async def say(self, ctx, chanid, args):
+    async def send(self, ctx, chanid, args):
         """well..."""
         chan = int(chanid)
         channel = self.bot.get_channel(chan)
-        await channel.trigger_typing()
-        await asyncio.sleep(1)
-        await channel.send(args)
-        await ctx.send("\U0001f44d")
-
-    @commands.command(hidden=True, pass_context=True)
-    @commands.is_owner()
-    async def send(self, ctx, args):
-        """..."""
-        channel = self.bot.get_channel(318533496060641280)
-        await channel.trigger_typing()
-        await asyncio.sleep(1)
         await channel.send(args)
         await ctx.send("\U0001f44d")
 

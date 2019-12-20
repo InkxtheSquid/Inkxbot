@@ -1,6 +1,6 @@
 import logging
 import json
-
+from discord.ext import commands
 import aiohttp
 
 log = logging.getLogger()
@@ -8,7 +8,7 @@ log = logging.getLogger()
 CARBONAPIBOTDATA = 'https://www.carbonitex.net/discord/data/botdata.php'
 DBOTSAPI         = 'https://bots.discord.pw/api'
 
-class Discordlist:
+class Discordlist(commands.Cog):
     """Cog for updating bot information on botlisting websites."""
     def __init__(self, bot):
         self.bot = bot

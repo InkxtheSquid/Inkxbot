@@ -9,14 +9,14 @@ import psutil
 
 log = logging.getLogger()
 
-class Stats:
+class Stats(commands.Cog):
     """Bot usage statistics."""
 
     def __init__(self, bot):
         self.bot = bot
 
     async def on_command(self, ctx):
-        self.bot.commands_used[ctx.command.qualified_name] += 1
+        self.bot.commands_used =+ 1
         message = ctx.message
         destination = None
         if isinstance(message.channel, discord.abc.PrivateChannel):
@@ -82,7 +82,7 @@ class Stats:
         try:
             owner = self._owner
         except AttributeError:
-            owner = self._owner = await self.bot.get_user_info('122043518544904192')
+            owner = self._owner = await self.bot.fetch_user('122043518544904192')
 
         embed.set_author(name=str(owner), icon_url=owner.avatar_url)
 
@@ -95,7 +95,7 @@ class Stats:
         members = '%s total\n%s online\n%s unique\n%s unique online' % (total_members, total_online, len(unique_members), unique_online)
         embed.add_field(name='Members', value=members)
         embed.add_field(name='Uptime', value=self.get_bot_uptime(brief=True))
-        embed.set_footer(text='Made with discord.py', icon_url='http://i.imgur.com/5BFecvA.png')
+        embed.set_footer(text='Made via discord.py, pfp: jenthenightmariontte', icon_url='http://i.imgur.com/5BFecvA.png')
         embed.timestamp = self.bot.uptime
 
         embed.add_field(name='Servers', value=len(self.bot.guilds))

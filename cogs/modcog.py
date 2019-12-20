@@ -10,7 +10,7 @@ def load_messages():
         return json.load(m)
 
 
-class Moderation:
+class Moderation(commands.Cog):
     """ Moderative Commands to keep the server clean """
 
     def __init__(self, bot):
@@ -142,11 +142,11 @@ class Moderation:
         wlc = messages[guildstr]['leave'].format(member)
         await channel.send(wlc)
 
-    async def on_member_ban(self, guild, user):
+    async def on_member_ban(guild, user):
         await asyncio.sleep(5)
         try:
             async for entry in guild.audit_logs(action=discord.AuditLogAction.ban):
-                channel = discord.utils.get(guild.channels, name='banlogs')
+                channel = guild.channels.get(name='banlogs')
                 if entry.reason == None:
                     return await channel.send(f"**BAN** \n**User**: {user} \n**Responsible Mod**: {entry.user}")
                 else:

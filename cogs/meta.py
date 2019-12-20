@@ -1,13 +1,35 @@
 import unicodedata
-
+import discord
 from discord.ext import commands
+from io import BytesIO
+from PIL import Image
+
+from jishaku.functools import executor_function
+
+@executor_function
+def color_processing(color: discord.Color):
+    with Image.new('RGB', (64, 64), color.to_rgb()) as im:
+        buff = BytesIO()
+        im.save(buff, 'png')
+
+    buff.seek(0)
+    return buff
 
 
-class Meta:
+
+    
+
+class Meta(commands.Cog):
     """Commands for utilities related to Discord or about myself."""
 
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.command()
+    async def color(self, ctx, color: discord.Color=None):
+        color = color or ctx.author.color
+        buff = await color_processing(color=color)
+        await ctx.send(file=discord.File(fp=buff, filename='color.png'))
 
     @commands.command()
     async def charinfo(self, ctx, *, characters: str):

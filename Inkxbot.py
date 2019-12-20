@@ -8,9 +8,12 @@ import json
 import sys
 import os
 import aiohttp
-
+import jishaku
+from jishaku.paginators import PaginatorEmbedInterface, PaginatorInterface
 from discord.ext import commands
 import discord
+
+#ssh -i "InkxtheSquid.pem" ubuntu@ec2-54-153-19-35.us-west-1.compute.amazonaws.com
 
 
 description = 'My command list is right here, each is used with a comma' # or a period' (in the future)
@@ -18,21 +21,20 @@ description = 'My command list is right here, each is used with a comma' # or a 
 
 # this specifies what extensions to load when the bot starts up
 startup_extensions = ["cogs.JustdanceCog",
-                      "cogs.SplatoonCog",
+                      "cogs.splatoon",
                       "cogs.HearthstoneCog",
-                      "cogs.DestinyCog",
-                      "cogs.admin",
+                      "cogs.destiny",
                       "cogs.BackgroundtaskCog",
                       "cogs.modcog",
-                      "cogs.MiscCog",
+                      "cogs.misc",
                       "cogs.dbots",
                       "cogs.ScoresForBattles",
-                      "cogs.MetaCog",
+                      "cogs.meta",
                       "cogs.ChallongeCog",
                       "cogs.EasterEggs",
-                      "cogs.StatsCog",
-                      "cogs.customhelp",
-                      "cogs.buttons"
+                      "cogs.stats",
+                      "cogs.admin",
+                      "cogs.helpcom"
                       ]
 
 
@@ -43,11 +45,9 @@ log.setLevel(logging.INFO)
 handler = logging.FileHandler(filename='inkxbot.log', encoding='utf-8', mode='w')
 log.addHandler(handler)
 
-helpattrs = dict(hidden=True)
+botfmt = commands.DefaultHelpCommand(show_check_failure=True)
 
-botfmt = commands.HelpFormatter(show_check_failure=True)
-
-bot = commands.Bot(command_prefix=',', help_attrs=helpattrs, description=description, formatter=botfmt)
+bot = commands.Bot(command_prefix=',', formatter=botfmt)
 
 
 def load_messages():
@@ -83,9 +83,9 @@ async def on_ready():
         #channel = discord.utils.get(guild.channels, name='banlogs')
         #try:
             #if entry.reason == None:
-                #return await channel.send(f"**BAN** \n**User**: {user} \n**Responsible Mod**: {entry.user}")
+                #return await channel.send(f"**BAN** \n**User**: {user} \n**Reponsible Mod**: {entry.user}")
             #else:
-                #return await channel.send(f"**BAN** \n**User**: {user} \n**Reason**: {entry.reason} \n**Responsible Mod**: {entry.user}")
+                #return await channel.send(f"**BAN** \n**User**: {user} \n**Reason**: {entry.reason} \n**Reponsible Mod**: {entry.user}")
         #except:
             #pass
 
@@ -127,7 +127,7 @@ async def on_command_error(ctx, error):
             pass
 
     elif isinstance(error, commands.CommandNotFound):
-        log.info(f"\"{ctx.message.guild}\": \"{ctx.message.author}\" used a command that's not in Inkxbot, content is resent here: '{ctx.message.content}'")
+        log.info(f"\"{ctx.message.guild}\": \"{ctx.message.author}\" used a command thats not in Inkxbot, content is resent here: '{ctx.message.content}'")
     elif isinstance(error, commands.MissingRequiredArgument):
         channel = ctx.message.channel
         await channel.trigger_typing()
@@ -160,33 +160,27 @@ async def do(ctx, times : int, *, command):
     for i in range(times):
         await bot.process_commands(msg)
 
-@bot.command(hidden=True)
-@commands.is_owner()
-async def shutdown(ctx):
-    """Shuts down the bot: owner only"""
-    await ctx.trigger_typing()
-    await asyncio.sleep(1)
-    await ctx.send("shutting down...")
-    await bot.change_presence(game=None, status=discord.Status.invisible)
-    await asyncio.sleep(1)
-    await bot.close()
-    os._exit(0)
-
 
 def load_credentials():
     with open('credentials.json') as f:
         return json.load(f)
 
+
 if __name__ == '__main__':
     credentials = load_credentials()
     token = credentials['token']
-    bot.aio_session = aiohttp.ClientSession(loop=bot.loop)
+    bot.aio_session = aiohttp.ClientSession(headers={'User-Agent': 'Inkxbot/2.0'},loop=bot.loop)
     bot.client_id = credentials['client_id']
     bot.carbon_key = credentials['carbon_key']
     bot.discordlist_token = credentials['discordlist_token']
     bot.dbots_key = credentials['dbots_key']
     bot.challongekey = credentials['challongekey']
+    bot.consumer_key = credentials['consumer_key']
+    bot.consumer_secret = credentials['consumer_secret']
+    bot.access_token = credentials['access_token']
+    bot.access_token_secret = credentials['access_token_secret']
     bot.commands_used = Counter()
+    bot.load_extension('jishaku')
     for extension in startup_extensions:
         try:
             bot.load_extension(extension)

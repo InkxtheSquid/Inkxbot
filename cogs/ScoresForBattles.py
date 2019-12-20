@@ -17,18 +17,23 @@ def load_trnynames():
     with open('tournamentnames.json') as t:
         return json.load(t)
 
+def stream_key(argument):
+    return argument
 
-class Scoring:
+class Scoring(commands.Cog):
     """Commands that display scores from e-sport battles against teams."""
 
     def __init__(self, bot):
         self.bot = bot
 
+
+
     @commands.command(aliases=['p'], pass_context=True, hidden=False)
     @commands.guild_only()
-    async def post(self, ctx, battle, homescr, args, awayscr):
+    @commands.has_permissions(manage_channels=True)
+    async def post(self, ctx, battle, homescr, args, awayscr, type: stream_key = None):
         """posts a battle result.
-         EXAMPLE: ,post 'scrim or result' 2 'name of clan you scrimed against' 1"""
+         EXAMPLE: ,post 'scrim or result' 2 'name of clan you scrimed against' 1 'vod(optional for vod reviewing)'"""
         teams = load_teams()
         trnys = load_trnynames()
         guild = ctx.message.guild
@@ -37,43 +42,78 @@ class Scoring:
         teamname = teamguild['team']
         trnyname = trnys[battle]['tourny']
         try:
-            if battle == 'scrim':
-                channel = discord.utils.get(guild.channels, name='results')
-                await channel.send("**Scrim** \n{0} {1}  -  {3} {2}".format(teamname, homescr, args, awayscr))
+            if type is None:
+                if battle == 'scrim':
+                    channel = discord.utils.get(guild.channels, name='results') 
+                    await channel.send("**Scrim** \n{0} {1}  -  {3} {2}".format(teamname, homescr, args, awayscr))
+                    await ctx.trigger_typing()
+                    await asyncio.sleep(1)
+                    await ctx.send("done")
+                    return
+
+                elif battle == 'result':
+                    channel = discord.utils.get(guild.channels, name='scrim-scores')
+                    await channel.send("**Scrim** \n{0} {1}  -  {3} {2}".format(teamname, homescr, args, awayscr))
+                    await ctx.trigger_typing()
+                    await asyncio.sleep(1)
+                    await ctx.send("done")
+                    return
+
+                elif battle == battle:
+                    channel = discord.utils.get(guild.channels, name='results')
+                    await channel.send("**Tournament**: {4} \n{0} {1}  -  {3} {2}".format(teamname, homescr, args, awayscr, trnyname))
+                    await ctx.trigger_typing()
+                    await asyncio.sleep(1)
+                    await ctx.send("done")
+                    return
+
+                elif guildidstr not in teams:
+                    await ctx.trigger_typing()
+                    await asyncio.sleep(1)
+                    await ctx.send("You haven't given me your team's name, type `,writeteam \"YOUR TEAM'S NAME HERE\"` to store it into my database")
+                    return
+
+                else:
+                    await ctx.trigger_typing()
+                    await asyncio.sleep(1)
+                    await ctx.send("It seems there's a problem, try again")
+                    return
+
+
+            elif battle == 'scrim':
+                channel = discord.utils.get(guild.channels, name='vod-review')
+                await channel.send(f"**Scrim** \n{teamname} {homescr}  -  {awayscr} {args} \n{type}")
                 await ctx.trigger_typing()
                 await asyncio.sleep(1)
                 await ctx.send("done")
                 return
 
             elif battle == 'result':
-                channel = discord.utils.get(guild.channels, name='scrim-scores')
-                await channel.send("**Scrim** \n{0} {1}  -  {3} {2}".format(teamname, homescr, args, awayscr))
+                channel = discord.utils.get(guild.channels, name='vod-review')
+                await channel.send(f"**Scrim** \n{teamname} {homescr}  -  {awayscr} {args} \n{type}")
                 await ctx.trigger_typing()
                 await asyncio.sleep(1)
                 await ctx.send("done")
                 return
 
             elif battle == battle:
-                channel = discord.utils.get(guild.channels, name='results')
-                await channel.send("**Tournament**: {4} \n{0} {1}  -  {3} {2}".format(teamname, homescr, args, awayscr, trnyname))
+                channel = discord.utils.get(guild.channels, name='vod-review')
+                await channel.send(f"**Tournament**: {trnyname}  \n{teamname} {homescr}  -  {awayscr} {args} \n{type}")
                 await ctx.trigger_typing()
                 await asyncio.sleep(1)
                 await ctx.send("done")
                 return
-
-            elif guildidstr not in teams:
-                await ctx.trigger_typing()
-                await asyncio.sleep(1)
-                await ctx.send("You haven't given me your team's name, type `,writeteam \"YOUR TEAM'S NAME HERE\"` to store it into my database")
-                return
-
+                    
             else:
                 await ctx.trigger_typing()
                 await asyncio.sleep(1)
                 await ctx.send("It seems there's a problem, try again")
                 return
+
+            
+
         except Exception as e:
-            await ctx.send("A {} has occurred, plese screenshot this and send this to `InkxtheSquid#8052` on Discord".format(type(e)))
+            await ctx.send("A {0} has occurred, did you make the correct type of channel".format(type(e)))
             log.info(e)
 
     @commands.command(aliases=['wt'], pass_context=True, hidden=False)

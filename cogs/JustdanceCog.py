@@ -3,14 +3,14 @@ import asyncio
 import aiohttp
 
 
-class Just_Dance:
+class Just_Dance(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command(aliases=['jdwiki'])
     async def justdancewiki(self, ctx, args):
         """Returns a justdancewiki page: ,justdancewiki "I Love It" """
-        url = 'http://justdance.wikia.com/wiki/' + args
+        url = 'http://justdance.fandom.com/wiki/' + args
         async with self.bot.aio_session.get(url) as resp:
             if resp.status == 404:
                 await ctx.trigger_typing()
