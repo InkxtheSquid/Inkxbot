@@ -3,14 +3,15 @@ import discord
 
 from jishaku.paginators import PaginatorEmbedInterfaceForHelpCom, PaginatorInterface
 
-class InkxHelp(commands.MinimalHelpCommand):
+class InkxHelp(commands.DefaultHelpCommand):
     """
     A subclass of :class:`commands.MinimalHelpCommand` that uses a PaginatorEmbedInterface for pages.
     """
     def __init__(self, **options):
-        paginator = options.pop('paginator', commands.Paginator(prefix=None, suffix=None, max_size=300))
-
-        super().__init__(paginator=paginator, **options)
+        self.no_category=""
+        paginator = options.pop('paginator', commands.Paginator(prefix=None, suffix=None, max_size=450))
+        super().__init__(paginator=paginator, help_attrs=dict(hidden=True), no_category="", show_check_failure=True, indent=5, **options)
+    
     async def send_pages(self):
         destination = self.get_destination()
 

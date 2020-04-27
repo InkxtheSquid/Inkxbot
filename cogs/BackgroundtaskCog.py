@@ -1,7 +1,12 @@
 import asyncio
 import subprocess
-from discord.ext import commands
+import random
 import discord
+import json
+
+from discord.ext import tasks, commands
+from disputils import BotEmbedPaginator
+from time import gmtime, strftime
 
 
 class Backgndtsk(commands.Cog):
@@ -9,25 +14,26 @@ class Backgndtsk(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.taskupdater = bot.loop.create_task(self.background_task())
+        self.splatoon = bot.get_cog("Splatoon")
+        self.bgtask.start()
 
-    def __unload(self):
-        self.taskupdater.cancel()
+    def cog_unload(self):
+        self.bgtask.cancel()
 
-    async def background_task(self):
-        # this background task is for changing the playing status
+
+    @tasks.loop(minutes=600)
+    async def bgtask(self):
+        #statuskeys = load_statuskeys()
+        #key = statuskeys[str(random.randrange(4))]
+        #satuslist=[discord.ActivityType.playing, discord.ActivityType.listening, discord.ActivityType.watching]
+        #await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=key['status'].format(len(self.bot.guilds))))
+        subprocess.Popen('python3 splatnet2statink.py', shell=True)
+        #await self.splatoon.splatgear_clock()
+
+    @bgtask.before_loop
+    async def before_bgtask(self):
+        print('waiting...')
         await self.bot.wait_until_ready()
-        await asyncio.sleep(10)
-        while not self.bot.is_closed():
-            subprocess.Popen('python3.6 splatnet2_cookiepull.py', shell=True)
-            await self.bot.change_presence(activity=discord.Game(name='https://inkxbot.github.io'))
-            await asyncio.sleep(60)
-            await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name='{} servers | ,help'.format(len(self.bot.guilds))))
-            await asyncio.sleep(60)
-            await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=',help for info'))
-            await asyncio.sleep(60)
-            await self.bot.change_presence(activity=discord.Game(name='give bots custom status'))
-            await asyncio.sleep(60)
 
 def setup(bot):
     bot.add_cog(Backgndtsk(bot))

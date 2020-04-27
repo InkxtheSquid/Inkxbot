@@ -27,6 +27,8 @@ class Meta(commands.Cog):
 
     @commands.command()
     async def color(self, ctx, color: discord.Color=None):
+        """sends an image of the color of your highest role.
+        """
         color = color or ctx.author.color
         buff = await color_processing(color=color)
         await ctx.send(file=discord.File(fp=buff, filename='color.png'))

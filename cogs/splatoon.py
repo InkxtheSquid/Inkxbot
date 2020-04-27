@@ -11,7 +11,6 @@ import subprocess
 from disputils import BotEmbedPaginator
 from discord.ext import commands
 import discord
-import requests
 import tweepy
 
 log = logging.getLogger()
@@ -72,11 +71,7 @@ class Splatoon(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.taskupdater = bot.loop.create_task(self.splatnet_clock())
 
-
-    def __unload(self):
-        self.taskupdater.cancel()
 
     async def __error(self, ctx, error):
         if isinstance(error, commands.BadArgument):
@@ -276,7 +271,7 @@ class Splatoon(commands.Cog):
         if md == 'Xrank':
             # the old way to get the images was so slow,
             # I had to use tweepy to do this just so I can let it get the images from the status id of the tweet
-            tweet=self.get_tweet(1200339403140255747)
+            tweet=self.get_tweet(1244549931853021185)
             if modeid == 0:
                 imageurl = tweet["media"][0]['media_url_https']
                 modetag  = 'Splat Zones'
@@ -301,51 +296,6 @@ class Splatoon(commands.Cog):
             sched_embed = discord.Embed(title='Map Schedule for {} in Splatoon 2'.format(md), description=desc, color=co)
         return sched_embed
 
-
-    async def splatnet_clock(self):
-        await self.bot.wait_until_ready()
-        while not self.bot.is_closed():
-            if time.strftime('%H:%M',time.gmtime()) == '02:01':
-                await self.splatnet()
-                await asyncio.sleep(60)
-            elif time.strftime('%H:%M',time.gmtime()) == '00:01':
-                await self.splatnet()
-                await asyncio.sleep(60)
-            elif time.strftime('%H:%M',time.gmtime()) == '04:01':
-                await self.splatnet()
-                await asyncio.sleep(60)
-            elif time.strftime('%H:%M',time.gmtime()) == '06:01':
-                await self.splatnet()
-                await asyncio.sleep(60)
-            elif time.strftime('%H:%M',time.gmtime()) == '08:01':
-                await self.splatnet()
-                await asyncio.sleep(60)
-            elif time.strftime('%H:%M',time.gmtime()) == '10:01':
-                await self.splatnet()
-                await asyncio.sleep(60)
-            elif time.strftime('%H:%M',time.gmtime()) == '12:01':
-                await self.splatnet()
-                await asyncio.sleep(60)
-            elif time.strftime('%H:%M',time.gmtime()) == '14:01':
-                await self.splatnet()
-                await asyncio.sleep(60)
-            elif time.strftime('%H:%M',time.gmtime()) == '16:01':
-                await self.splatnet()
-                await asyncio.sleep(60)
-            elif time.strftime('%H:%M',time.gmtime()) == '18:01':
-                await self.splatnet()
-                await asyncio.sleep(60)
-            elif time.strftime('%H:%M',time.gmtime()) == '20:01':
-                await self.splatnet()
-                await asyncio.sleep(60)
-            elif time.strftime('%H:%M',time.gmtime()) == '22:01':
-                await self.splatnet()
-                await asyncio.sleep(60)
-            elif time.strftime('%H:%M',time.gmtime()) == '24:01':
-                await self.splatnet()
-                await asyncio.sleep(60)
-            else:
-                await asyncio.sleep(10)
 
 
     async def sr_schedule(self,ctx,num):
@@ -401,6 +351,33 @@ class Splatoon(commands.Cog):
         	pass
         return emb
 
+    async def splatgear_clock(self):
+        try:
+            await self.get_schedules()
+            embed = [await self.get_gear(ctx, 0)]
+            paginator = BotEmbedPaginator(ctx, embed)
+            channel = discord.utils.get(guild.channels, name='results') 
+
+            if time.strftime('%H:%M',time.gmtime())  ==  '00:01'or'02:01'or'04:01'or'06:01'or'08:01'or'10:01'or'12:01':
+                await paginator.run()
+                await asyncio.sleep(60)
+            elif time.strftime('%H:%M',time.gmtime()) == '14:01'or'16:01'or'18:01'or'20:01'or'22:01'or'24:01':
+                await paginator.run()
+                await asyncio.sleep(60)
+            else:
+                await asyncio.sleep(10)
+        except:
+            pass
+
+    async def splatgear_clock_test(self):
+        try:
+            channel = discord.utils.get(discord.abc.GuildChannel, name='splatnet') 
+            await self.get_schedules(channel)
+            embed = [await self.get_gear(channel, 0)]
+            paginator = BotEmbedPaginator(channel, embed)
+            await paginator.run()
+        except:
+            pass
 
     async def get_gear(self,ctx,itemid):
         try:
@@ -500,7 +477,7 @@ class Splatoon(commands.Cog):
                 pass
 
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.is_owner()
     async def advice(self, ctx):
         """just some lifechoaching for Inkx"""
